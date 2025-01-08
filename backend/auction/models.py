@@ -16,8 +16,6 @@ class User(models.Model):
 
 
 class Wallet(models.Model):
-    user: models.ForeignKey = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='wallet_user')
     card_id: models.CharField = models.CharField(max_length=50)
     balance: models.FloatField = models.FloatField()
 
@@ -30,7 +28,7 @@ class Article(models.Model):
     owner: models.ForeignKey = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL)
     starting_price: models.FloatField = models.FloatField()
-    description: models.TextField = models.TextField()
+    description: models.TextField = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -47,4 +45,4 @@ class Auction(models.Model):
     current_price: models.FloatField = models.FloatField()
 
     def __str__(self):
-        return f"Auction for {self.article.name}"
+        return f"Auction for {self.article.name}, current price: {self.current_price}, active: {self.is_active}"

@@ -35,9 +35,9 @@ if __name__ == "__main__":
         print("Connecting to broker...")
         client.loop_start()
 
-        client.publish(TOPIC_PUBLISH, "Test bid from connector")
+        while input("Press Enter to publish a message...\n") == "":
+            client.publish(TOPIC_PUBLISH, "1234567890")
 
-        input("Press Enter to disconnect...\n")
         client.loop_stop()
         client.disconnect()
         print("Disconnected from broker.")
