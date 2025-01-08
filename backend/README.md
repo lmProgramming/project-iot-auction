@@ -4,13 +4,13 @@
 
 If Mosquitto is not running, the backend will work, but no MQTT API calls will work.
 
-### On Linux:
+### On Linux
 
 ```sh
 sudo systemctl start mosquitto
 ```
 
-### On Windows (Administrator):
+### On Windows (Administrator)
 
 ```sh
 net start mosquitto
@@ -24,12 +24,21 @@ Make sure you are in this directory in terminal (`project-iot-auction/backend`).
 
 ```sh
 python manage.py migrate
+python python manage.py seed
 ```
 
 ### To run
 
 ```sh
 python manage.py runserver
+```
+
+### More commands
+
+clear database:
+
+```sh
+python manage.py clear_db
 ```
 
 ## Contributing
