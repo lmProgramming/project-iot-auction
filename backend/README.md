@@ -1,45 +1,43 @@
-# backend
+# Backend
 
-## how to run mosquitto
+## How to run Mosquitto
 
-if mosquitto is not running, backend will work, but no mqtt api calls will work
+If Mosquitto is not running, the backend will work, but no MQTT API calls will work.
 
-if on linux:
+### On Linux:
 
 ```sh
 sudo systemctl start mosquitto
 ```
 
-on windows (administrator):
+### On Windows (Administrator):
 
 ```sh
 net start mosquitto
 ```
 
-## how to run
+## How to run
 
-make sure you are in this directory in terminal (project-iot-auction/backend)
+Make sure you are in this directory in terminal (`project-iot-auction/backend`).
 
-for first time:
+### For the first time
 
 ```sh
 python manage.py migrate
 ```
 
-to run:
+### To run
 
 ```sh
 python manage.py runserver
 ```
 
-## contributing
+## Contributing
 
-JavaScript/TypeScript should be in static/{js or ts}/ directory
-would be nice to use TypeScript and run in this directory
+JavaScript/TypeScript should be in the `static/{js, ts}/` directory. It would be nice to use TypeScript and run in this directory:
 
 ```sh
 tsc
 ```
 
-frontend is in HTML and should be in templates/ directory
-CSS should be in static/ directory I think
+The frontend is in HTML and should be in the `templates/` directory. CSS should be in the `static/css` directory.
