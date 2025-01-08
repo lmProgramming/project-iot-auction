@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-      "target": "ES5",
-      "lib": ["ES2015", "DOM"],
-      "outDir": "./static/js",
-      "strict": true
-  },
-  "include": ["static/ts/"]
-}
