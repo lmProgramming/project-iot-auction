@@ -65,7 +65,7 @@ def register_card(card_uid):
         }
         client.publish(topic_bid_submission, json.dumps(payload))
         print(f"Card {card_uid} registered at {timestamp} for auction {current_auction['id']}.")
-        display_on_oled(current_auction["id"], current_auction["price"], f"Card {card_uid} registered!")
+        display_on_oled(current_auction, f"Card {card_uid} registered!")
 
 def signal_registration():
     GPIO.output(buzzerPin, GPIO.LOW)
