@@ -1,12 +1,17 @@
 import paho.mqtt.client as mqtt
-from .models import Auction, Article, User
+from .models import Auction, User
 from django.utils import timezone
 import threading
 import os
+import atexit
 
 # MQTT Settings
 BROKER_ADDRESS = "localhost"
 TOPIC = "auction/#"
+
+client = None  # Global client variable
+
+PRICE_CHANGE = 50
 
 
 def on_connect(client, userdata, flags, rc):
@@ -37,13 +42,27 @@ def on_message(client, userdata, msg):
 
 
 def start_mqtt():
+    global client
     try:
         client = mqtt.Client()
         client.on_connect = on_connect
         client.on_message = on_message
 
         client.connect(BROKER_ADDRESS, 1883, 60)
-        thread = threading.Thread(target=client.loop_forever)
+        thread = threading.Thread(target=client.loop_forever, daemon=True)
         thread.start()
+        print("MQTT Client started")
     except Exception as e:
         print("MQTT Error:", e)
+
+
+def stop_mqtt():
+    global client
+    if client:
+        client.disconnect()
+        client.loop_stop()
+        print("MQTT Client stopped")
+
+
+# Ensure MQTT stops on Django shutdown
+atexit.register(stop_mqtt)
