@@ -27,23 +27,24 @@ class Wallet(models.Model):
 
 class Article(models.Model):
     name: models.CharField = models.CharField(max_length=100)
-    starting_price: models.FloatField = models.FloatField()
-    current_price: models.FloatField = models.FloatField()
     owner: models.ForeignKey = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL)
+    starting_price: models.FloatField = models.FloatField()
+    description: models.TextField = models.TextField()
 
     def __str__(self):
         return self.name
 
 
 class Auction(models.Model):
-    item: models.ForeignKey = models.ForeignKey(
+    article: models.ForeignKey = models.ForeignKey(
         Article, on_delete=models.CASCADE)
     start_time: models.DateTimeField = models.DateTimeField(
         default=timezone.now)
     end_time: models.DateTimeField = models.DateTimeField(
         null=True, blank=True)
     is_active: models.BooleanField = models.BooleanField(default=False)
+    current_price: models.FloatField = models.FloatField()
 
     def __str__(self):
-        return f"Auction for {self.item.name}"
+        return f"Auction for {self.article.name}"
