@@ -9,6 +9,20 @@ import lib.oled.SSD1331 as SSD1331
 from config import *
 import rfid
 
+#
+#
+#
+#
+# It would be nice if this script could be run without raspberry pi, using dependency injection to simulate rfid on keyboard
+#
+#
+#
+#
+#
+#
+#
+#
+
 # configs
 BROKER = "localhost"  # to be changed for ip
 PORT = 1883
