@@ -4,27 +4,13 @@ import time
 import json
 import paho.mqtt.client as mqtt
 from datetime import datetime
-# from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 import lib.oled.SSD1331 as SSD1331
 from config import *
 import rfid
 
-#
-#
-#
-#
-# It would be nice if this script could be run without raspberry pi, using dependency injection to simulate rfid on keyboard
-#
-#
-#
-#
-#
-#
-#
-#
-
 # configs
-BROKER = "localhost"  # to be changed for ip
+BROKER = "10.108.33.129"  # to be changed for ip
 PORT = 1883
 TOPIC_SUBSCRIBE = "auction/news"
 TOPIC_PUBLISH = "auction/"
@@ -41,23 +27,26 @@ current_auction = {"auction_id": 1, "current_price": 100}
 SOUND_ON = False
 
 # fonts for display
-# font_large = ImageFont.truetype('./lib/oled/Font.ttf', 18)
-# font_small = ImageFont.truetype('./lib/oled/Font.ttf', 13)
-
+font_large = ImageFont.truetype('/home/pi/project-iot-auction/raspberry_pi/lib/oled/Font.ttf', 18)
+font_small = ImageFont.truetype('/home/pi/project-iot-auction/raspberry_pi/lib/oled/Font.ttf', 11)
 
 def display_on_oled(auction, status):
     disp.clear()
-    # image = Image.new("RGB", (disp.width, disp.height), "BLACK")
-    # draw = ImageDraw.Draw(image)
+    image = Image.new("RGB", (disp.width, disp.height), "BLACK")
+    draw = ImageDraw.Draw(image)
 
-    # draw.text((5, 5), f"ID: {auction['id']}", font=font_small, fill="WHITE")
-    # draw.text((5, 20), f"Article: {auction['article']}", font=font_small, fill="WHITE")
-    # draw.text((5, 35), f"Price: ${auction['current_price']}", font=font_small, fill="WHITE")
-    # draw.text((5, 50), f"Status: {status}", font=font_small, fill="BLUE")
+    #draw.text((5, 5), f"ID: {auction['auction_id']}", font=font_small, fill="WHITE")
+    draw.text((2, 10), f"Article: {auction['article']}", font=font_small, fill="WHITE")
+    draw.text((2, 30), f"Price: ${auction['current_price']}", font=font_small, fill="WHITE")
+    draw.text((2, 50), f"{status}", font=font_small, fill="BLUE")
 
-    # disp.ShowImage(image, 0, 0)
+    artImg = Image.open('/home/pi/project-iot-auction/raspberry_pi/lib/oled/pic.jpg')
+    artImg = artImg.resize((30, 30))
 
+    image.paste(artImg, (64, 10))
+    disp.ShowImage(image, 0, 0)
 
+    
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to MQTT Broker!")
@@ -65,10 +54,8 @@ def on_connect(client, userdata, flags, rc):
     else:
         print(f"Failed to connect, return code {rc}")
 
-
 def on_publish(client, userdata, mid):
     print(f"Message published: {mid}")
-
 
 def on_message(client, userdata, msg):
     global current_auction
@@ -99,8 +86,7 @@ def register_card(card_uid):
         topic = f"{TOPIC_PUBLISH}{id}"
 
         client.publish(topic, json.dumps(payload))
-        print(f"Card {card_uid} registered at {
-              timestamp} for auction {current_auction['auction_id']}.")
+        print(f"Card {card_uid} registered at {timestamp} for auction {current_auction['auction_id']}.")
         display_on_oled(current_auction, f"Card {card_uid} registered!")
 
 
@@ -130,8 +116,7 @@ if __name__ == "__main__":
     try:
         print("Waiting for auction data...")
         while True:
-            # maybe add checking if the card is the same as the last
-            card_uid, num = rfid.rfid_read()
+            card_uid, num = rfid.rfid_read() #maybe add checking if the card is the same as the last 
             if card_uid:
                 register_card(card_uid)
             time.sleep(0.1)
