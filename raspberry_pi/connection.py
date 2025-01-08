@@ -83,18 +83,18 @@ def read_card():
     return None
 
 
-# Connect to the MQTT broker
+# connection to broker
 client = mqtt.Client()
 client.on_message = on_message
 client.connect(broker)
 client.subscribe(topic_current_auction)
 client.loop_start()
 
-# Main loop to handle RFID reading
+# main loop
 try:
     print("Waiting for auction data...")
     while True:
-        card_uid = read_card()
+        card_uid = read_card() #maybe add checking if the card is the same as the last 
         if card_uid:
             register_card(card_uid)
         time.sleep(0.1)
