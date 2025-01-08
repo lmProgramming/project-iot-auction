@@ -1,8 +1,24 @@
 # backend
 
+## how to run mosquitto
+
+if mosquitto is not running, backend will work, but no mqtt api calls will work
+
+if on linux:
+
+```sh
+sudo systemctl start mosquitto
+```
+
+on windows (administrator):
+
+```sh
+net start mosquitto
+```
+
 ## how to run
 
-make sure you are in this directory
+make sure you are in this directory in terminal (project-iot-auction/backend)
 
 for first time:
 
