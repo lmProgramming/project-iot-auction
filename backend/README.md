@@ -24,16 +24,50 @@ Make sure you are in this directory in terminal (`project-iot-auction/backend`).
 
 ```sh
 python manage.py migrate
-python python manage.py seed
+python manage.py seed
 ```
 
 ### To run
+
+#### Normally
 
 ```sh
 python manage.py runserver
 ```
 
-### More commands
+#### On 2 raspberry pi's over the network
+
+```sh
+sudo nano /etc/mosquitto/mosquitto.conf
+```
+
+add lines:
+listener 1883
+allow_anonymous true
+
+```sh
+sudo systemctl restart mosquitto
+hostname -I
+```
+
+update the broker IP everywhere to the one from hostname
+
+## Admin panel
+
+http://your-server-ip:8000/admin/
+
+username: pi
+password: P@ssw0rd
+
+## Database
+
+```sh
+sudo apt-get install sqlite3 libsqlite3-dev
+python3 manage.py dbshell
+.tables
+```
+
+## More commands
 
 clear database:
 

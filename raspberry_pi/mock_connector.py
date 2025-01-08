@@ -15,8 +15,7 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, userdata, msg):
-    print(f"Received message: Topic: {
-          msg.topic}, Payload: {msg.payload.decode()}")
+    print(f"Received message: Topic: {msg.topic}, Payload: {msg.payload.decode()}")
 
 
 def on_publish(client, userdata, mid):
