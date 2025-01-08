@@ -29,6 +29,7 @@ class Article(models.Model):
         User, null=True, blank=True, on_delete=models.SET_NULL)
     starting_price: models.FloatField = models.FloatField()
     description: models.TextField = models.TextField(default="")
+    image: models.ImageField = models.ImageField(upload_to='images/')
 
     def __str__(self):
         return self.name
