@@ -8,13 +8,14 @@ import datetime
 import json
 
 # MQTT Settings
-BROKER_ADDRESS = "10.108.33.129"
+BROKER_ADDRESS = "localhost"  # change to ip
 TOPIC = "auction/#"
 NEW_TOPIC = "auction/news"
 
 client = None  # Global client variable
 
 PRICE_CHANGE = 50
+
 
 def new_auction():
     payload = {
@@ -42,6 +43,7 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe(TOPIC)
 
     start_timer(10, new_auction)
+
 
 def on_publish(client, userdata, mid):
     print(f"Message published: {mid}")
@@ -90,8 +92,8 @@ def on_message(client, userdata, msg) -> None:
                 "price": auction.current_price + PRICE_CHANGE,
                 "article": current_auction["article"],
             }
-            client.publish("auction/1", json.dumps(payload))   
-            
+            client.publish("auction/1", json.dumps(payload))
+
         except (Auction.DoesNotExist, User.DoesNotExist, Wallet.DoesNotExist) as e:
             print("Invalid auction or user:", e)
         except:
@@ -115,7 +117,7 @@ def start_mqtt():
 
         client.connect(BROKER_ADDRESS, 1883, 60)
         thread = threading.Thread(target=client.loop_forever, daemon=True)
-        thread.start()     
+        thread.start()
         print("MQTT Client started")
     except Exception as e:
         print("MQTT Error:", e)
