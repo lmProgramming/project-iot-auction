@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-from .models import Auction, User
+from .models import Auction, User, Wallet
 from django.utils import timezone
 import threading
 import os
@@ -23,12 +23,17 @@ def on_message(client, userdata, msg) -> None:
     payload = msg.payload.decode('utf-8')
     topic = msg.topic
 
+    print(payload)
+
     if topic.startswith("auction/"):
+        print(topic)
+        # todo: implement handling auction id
         auction_id = topic.split('/')[1]
         try:
             auction: Auction = Auction.objects.get(
-                id=auction_id, is_active=True)
-            user: User = User.objects.get(card_id=payload)
+                is_active=True)
+            wallet: Wallet = Wallet.objects.get(card_id=payload)
+            user: User = User.objects.get(wallet=wallet)
 
             if user.wallet.balance >= auction.current_price + PRICE_CHANGE:
                 auction.current_price += PRICE_CHANGE
