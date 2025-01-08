@@ -28,27 +28,28 @@ current_auction = None
 font_large = ImageFont.truetype('./lib/oled/Font.ttf', 18)
 font_small = ImageFont.truetype('./lib/oled/Font.ttf', 13)
 
-def display_on_oled(auction_id, price, status):
+def display_on_oled(auction, status):
     disp.clear()
     image = Image.new("RGB", (disp.width, disp.height), "BLACK")
     draw = ImageDraw.Draw(image)
 
-    draw.text((5, 5), f"Auction ID: {auction_id}", font=font_small, fill="WHITE")
-    draw.text((5, 25), f"Price: ${price}", font=font_large, fill="WHITE")
-
-    draw.text((5, 50), status, font=font_small, fill="BLUE")
+    draw.text((5, 5), f"ID: {auction['id']}", font=font_small, fill="WHITE")
+    draw.text((5, 20), f"Article: {auction['article']}", font=font_small, fill="WHITE")
+    draw.text((5, 35), f"Price: ${auction['current_price']}", font=font_small, fill="WHITE")
+    draw.text((5, 50), f"Status: {status}", font=font_small, fill="BLUE")
 
     disp.ShowImage(image, 0, 0)
 
-# receiving auction data
 def on_message(client, userdata, msg):
     global current_auction
     if msg.topic == topic_current_auction:
-        current_auction = json.loads(msg.payload.decode("utf-8")) 
-        print(f"Received auction data: ID: {current_auction['id']}, Price: {current_auction['price']}")
-        display_on_oled(current_auction["id"], current_auction["price"], "Waiting for bids...")
+        current_auction = json.loads(msg.payload.decode("utf-8"))
+        print(f"Received auction data: ID: {current_auction['id']}, "
+              f"Article: {current_auction['article']}, "
+              f"Price: {current_auction['current_price']}")
+        display_on_oled(current_auction, "Waiting for bids...")
 
-# Function to register a card swipe
+
 def register_card(card_uid):
     global current_auction
 
