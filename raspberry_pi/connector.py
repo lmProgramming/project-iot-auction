@@ -30,7 +30,7 @@ client.on_publish = on_publish
 
 try:
     client.connect(BROKER, PORT, 60)
-    print("🔌 Connecting to broker...")
+    print("Connecting to broker...")
     client.loop_start()
 
     client.publish(TOPIC_PUBLISH, "Test bid from connector")
@@ -38,6 +38,6 @@ try:
     input("Press Enter to disconnect...\n")
     client.loop_stop()
     client.disconnect()
-    print("🔒 Disconnected from broker.")
+    print("Disconnected from broker.")
 except Exception as e:
     print(f"Error: {e}")
