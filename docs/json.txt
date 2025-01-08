@@ -1,4 +1,5 @@
-api/auction/current -> 
+I will send you:
+
 {
    "article_name":"apple",
    "auction_id":"2",
@@ -7,7 +8,8 @@ api/auction/current ->
    "article_image":"iVBORw0KGgoAAAANSUhEUgAAAAUA...",
 }
 
-api/auction/submission -> 
+I expect from you:
+
 {
     "card_id":"DBASHDBAHB@!HB!@J",
     "time_stamp":"2012-04-23T18:25:43.511Z",
