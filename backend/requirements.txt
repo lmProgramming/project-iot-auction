@@ -20,3 +20,4 @@ types-requests
 typing_extensions
 tzdata
 urllib3
+Pillow

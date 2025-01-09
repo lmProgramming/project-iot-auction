@@ -8,3 +8,4 @@ sqlparse
 types-PyYAML
 typing_extensions
 tzdata
+Pillow
