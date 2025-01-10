@@ -1,8 +1,22 @@
-from client.platform.windows import Windows
 from connection_config import BROKER, PORT
 import paho.mqtt.client as mqtt
+import platform
 
-device = Windows()
+if platform.system() == "Windows":
+    from client.platform.windows import Windows
+
+    device = Windows()
+if platform.system() == "Linux":
+    with open("/proc/cpuinfo", "r") as f:
+        if "Raspberry Pi" in f.read():
+            from client.platform.raspberry import Raspberry
+
+            device = Raspberry()
+        else:
+            raise EnvironmentError(
+                "Unsupported Linux platform. This script is designed for Raspberry Pi."
+            )
+
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_message = device.on_message
