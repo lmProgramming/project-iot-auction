@@ -1,13 +1,10 @@
-from mfrc522 import MFRC522
-import RPi.GPIO as GPIO
 import time
 import json
 import paho.mqtt.client as mqtt
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
-import lib.oled.SSD1331 as SSD1331
-from config import *
-import rfid
+
+from config.raspberry.raspberry_config import *
+import config.raspberry.rfid as rfid
 
 # It would be nice if this script could be run without raspberry pi, using dependency injection to simulate rfid on keyboard
 
@@ -30,9 +27,11 @@ SOUND_ON = False
 
 # fonts for display
 font_large = ImageFont.truetype(
-    '/home/pi/project-iot-auction/raspberry_pi/lib/oled/Font.ttf', 18)
+    "/home/pi/project-iot-auction/raspberry_pi/lib/oled/Font.ttf", 18
+)
 font_small = ImageFont.truetype(
-    '/home/pi/project-iot-auction/raspberry_pi/lib/oled/Font.ttf', 11)
+    "/home/pi/project-iot-auction/raspberry_pi/lib/oled/Font.ttf", 11
+)
 
 
 def display_on_oled(auction, status):
@@ -41,14 +40,23 @@ def display_on_oled(auction, status):
     draw = ImageDraw.Draw(image)
 
     # draw.text((5, 5), f"ID: {auction['auction_id']}", font=font_small, fill="WHITE")
-    draw.text((2, 10), f"Article: {
-              auction['article']}", font=font_small, fill="WHITE")
-    draw.text((2, 30), f"Price: ${
-              auction['current_price']}", font=font_small, fill="WHITE")
+    draw.text(
+        (2, 10),
+        f"Article: {
+              auction['article']}",
+        font=font_small,
+        fill="WHITE",
+    )
+    draw.text(
+        (2, 30),
+        f"Price: ${
+              auction['current_price']}",
+        font=font_small,
+        fill="WHITE",
+    )
     draw.text((2, 50), f"{status}", font=font_small, fill="BLUE")
 
-    artImg = Image.open(
-        '/home/pi/project-iot-auction/raspberry_pi/lib/oled/pic.jpg')
+    artImg = Image.open("/home/pi/project-iot-auction/raspberry_pi/lib/oled/pic.jpg")
     artImg = artImg.resize((30, 30))
 
     image.paste(artImg, (64, 10))
@@ -72,9 +80,11 @@ def on_message(client, userdata, msg):
     print(msg.topic)
     if msg.topic == TOPIC_SUBSCRIBE:
         current_auction = json.loads(msg.payload.decode("utf-8"))
-        print(f"Received auction data: ID: {current_auction['auction_id']}, "
-              f"Article: {current_auction['article']}, "
-              f"Price: {current_auction['current_price']}")
+        print(
+            f"Received auction data: ID: {current_auction['auction_id']}, "
+            f"Article: {current_auction['article']}, "
+            f"Price: {current_auction['current_price']}"
+        )
         display_on_oled(current_auction, "Waiting for bids...")
 
 
@@ -89,15 +99,17 @@ def register_card(card_uid):
         payload = {
             "timestamp": timestamp,
             "auction_id": current_auction["auction_id"],
-            "card_uid": card_uid
+            "card_uid": card_uid,
         }
 
         id = current_auction["auction_id"]
         topic = f"{TOPIC_PUBLISH}{id}"
 
         client.publish(topic, json.dumps(payload))
-        print(f"Card {card_uid} registered at {
-              timestamp} for auction {current_auction['auction_id']}.")
+        print(
+            f"Card {card_uid} registered at {
+              timestamp} for auction {current_auction['auction_id']}."
+        )
         display_on_oled(current_auction, f"Card {card_uid} registered!")
 
 

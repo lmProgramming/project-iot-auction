@@ -4,6 +4,8 @@
 import RPi.GPIO as GPIO
 
 # pin numbers in BCM
+SOUND_ON = False
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
@@ -31,9 +33,16 @@ GPIO.output(buzzerPin, 1)
 
 ws2812pin = 8
 
+font_large = ImageFont.truetype(
+    "/home/pi/project-iot-auction/raspberry_pi/lib/oled/Font.ttf", 18
+)
+font_small = ImageFont.truetype(
+    "/home/pi/project-iot-auction/raspberry_pi/lib/oled/Font.ttf", 11
+)
+
 
 def configInfo():
-    print('This is only configuration file.\n')
+    print("This is only configuration file.\n")
 
 
 if __name__ == "__main__":
