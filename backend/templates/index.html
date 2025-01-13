@@ -1,13 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    {% load static %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Auction Manager</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles/style.css" />
+    <title>Aplikacja aukcyjna</title>
   </head>
-  <body class="flex flex-col min-h-screen bg-gray-100 font-sans antialiased">
-    HELLO AUCTION<script src="{% static 'js/index.js' %}"></script>
+  <body>
+    <h1>Aplikacja aukcyjna</h1>
+
+    <section>
+      <h2>Utwórz nowego użytkownika</h2>
+      <form id="create-user-form">
+        <label for="username">Nazwa użytkownika:</label>
+        <input type="text" id="username" required />
+        <label for="pass">Hasło:</label>
+        <input type="password" id="pass" required />
+        <button type="submit">Utwórz użytkownika</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Utwórz nową aukcję</h2>
+      <form id="create-auction-form">
+        <label for="item-name">Nazwa przedmiotu:</label>
+        <input type="text" id="item-name" required />
+        <label for="starting-price">Cena początkowa:</label>
+        <input type="number" id="starting-price" min="0" required />
+        <button type="submit">Utwórz aukcję</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Dodaj pieniądze użytkownikowi</h2>
+      <form id="add-money-form">
+        <label for="username">Nazwa użytkownika:</label>
+        <input type="text" id="username" required />
+        <label for="amount">Kwota:</label>
+        <input type="number" id="amount" min="0" required />
+        <button type="submit">Dodaj pieniądze</button>
+      </form>
+    </section>
+
+    <script src="./scripts/script.js"></script>
   </body>
 </html>
