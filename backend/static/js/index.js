@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_URL = 'https://backend.example.com/api'
+  const API_URL = 'https://127.0.0.1:8000'
 
   // Creating new user
   document
