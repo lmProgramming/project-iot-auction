@@ -1,4 +1,4 @@
-from connection_config import BROKER, PORT
+from connection_config import BROKER, PORT, TOPIC_PUBLISH, TOPIC_SUBSCRIBE
 import paho.mqtt.client as mqtt
 import platform
 
@@ -30,6 +30,8 @@ try:
     while True:
         card_uuid, num = device.read_card()
         if card_uuid:
+            rc, mid = client.publish(TOPIC_PUBLISH, 20)
+            print(f"rc: {rc} mid: {mid}.")
             print(f"Card {card_uuid} registered.")
 except KeyboardInterrupt:
     print("Program terminated.")
