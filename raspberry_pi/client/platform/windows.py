@@ -23,7 +23,7 @@ class Windows(ClientDevice):
                 f"Price: {auction['current_price']}"
             )
 
-    def on_publish(self, client, userdata, mid):
+    def on_publish(self, client, userdata, mid, retain=False, properties=None):
         print(f"Windows: on_publish - {mid}")
 
     def read_card(self):
