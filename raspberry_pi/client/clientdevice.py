@@ -2,10 +2,13 @@
 
 from abc import ABC, abstractmethod
 import json
-from connection_config import TOPIC_SUBSCRIBE
+from client.auction.auction import Auction
+from connection_config import *
 
 
 class ClientDevice(ABC):
+    current_auction: Auction = None
+
     @abstractmethod
     def displayAuction(self, auction, status):
         raise NotImplementedError
@@ -17,9 +20,17 @@ class ClientDevice(ABC):
         else:
             print(f"Failed to connect, return code {rc}")
 
-    @abstractmethod
     def on_message(self, client, userdata, message):
-        raise NotImplementedError
+        topic, payload = self.decode(message)
+        if topic == TOPIC_SUBSCRIBE:
+            data = json.loads(payload)
+            event = data["event"]
+            if event == EVENT_NOAUCTION:
+                self.current_auction = None
+                return print("No new autions.")
+            auction: Auction = Auction.fromJson(data["auction"])
+            self.current_auction = auction
+            self.displayAuction()
 
     @abstractmethod
     def on_publish(self, client, userdata, mid):
