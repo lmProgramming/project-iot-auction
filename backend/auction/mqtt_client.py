@@ -1,66 +1,148 @@
+import time
 import paho.mqtt.client as mqtt
 from .models import Auction, User, Wallet
 from django.utils import timezone
 import threading
-import os
 import atexit
-import datetime
 import json
-from .decorators import check_card_registration
 
 # MQTT Settings
-BROKER_ADDRESS = "localhost"  # change to ip
+BROKER_ADDRESS = "localhost"  # Replace with the actual IP address
 TOPIC = "auction/#"
 NEW_TOPIC = "auction/news"
 
 client = None  # Global client variable
+active_auction: Auction = None  # Global variable to store the active auction
 
-PRICE_CHANGE = 50
+
+def get_next_auction() -> Auction:
+    """
+    Get the next auction to be activated.
+    """
+    return (
+        Auction.objects.filter(
+            is_finished=False,
+            start_time__lt=timezone.now(),
+        )
+        .order_by("start_time")
+        .first()
+    )
 
 
-# def new_auction():
-#     payload = {
-#         "auction_id": 1,
-#         "current_price": 100,
-#         "article": "miki",
-#     }
-#     client.publish(NEW_TOPIC, json.dumps(payload))
+def notify_new_auction(auction: Auction):
+    """
+    Notify clients immediately when a new auction is created and starts.
+    """
+    global client
+    if not client:
+        print("MQTT client is not initialized.")
+        return
 
-#     print("\n\n\nNEW AUCTION\n\n\n")
+    payload = auction.create_payload(event="new_auction")
+    try:
+        client.publish(NEW_TOPIC, json.dumps(payload))
+        print(f"Notified clients about new auction: {auction}")
+    except Exception as e:
+        print(f"Failed to notify clients about new auction: {e}")
 
-#     start_timer(10, new_auction)
+
+def notify_auction_update(auction: Auction):
+    """
+    Notify clients during the auction about any updates like price changes.
+    """
+    global client
+    if not client:
+        print("MQTT client is not initialized.")
+        return
+
+    payload = auction.create_payload(event="auction_update")
+    try:
+        client.publish(NEW_TOPIC, json.dumps(payload))
+        print(f"Notified clients about auction update: {auction}")
+    except Exception as e:
+        print(f"Failed to notify clients about auction update: {e}")
+
+
+def notify_no_auctions():
+    global client
+    if not client:
+        print("MQTT client is not initialized.")
+        return
+    payload = {"event": "no_auctions", "message": "No active auctions"}
+    try:
+        client.publish(NEW_TOPIC, json.dumps(payload))
+        print("Notified clients about no active auctions")
+    except Exception as e:
+        print(f"Failed to notify clients about no active auctions: {e}")
+
+
+def notify_auction_finished(auction: Auction):
+    """
+    Notify clients that the auction has finished.
+    """
+    global client
+    if not client:
+        print("MQTT client is not initialized.")
+        return
+
+    payload = auction.create_payload(event="auction_finished")
+    winner = auction.last_bidder.wallet.card_id
+    payload["auction"]["winner"] = winner
+    try:
+        client.publish(NEW_TOPIC, json.dumps(payload))
+        print(f"Notified clients that auction has finished: {auction}")
+    except Exception as e:
+        print(f"Failed to notify clients about finished auction: {e}")
 
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected to MQTT Broker")
-
-    payload = {
-        "auction_id": 1,
-        "price": 100,
-        "article": "miki",
-    }
-    client.publish(NEW_TOPIC, json.dumps(payload))
-
-    client.subscribe(TOPIC)
+    """
+    Callback for when the client connects to the broker.
+    """
+    if rc == 0:
+        print("Connected to MQTT Broker")
+        client.subscribe(TOPIC)
+    else:
+        print(f"Failed to connect to MQTT Broker, return code {rc}")
 
 
 def on_publish(client, userdata, mid):
-    print(f"Message published: {mid}")
+    """
+    Callback for when a message is published.
+    """
+    print(f"Message published with mid {mid}")
 
 
-def on_message(client, userdata, msg) -> None:
-    check_card_registration(print(f"Received message: {msg.payload.decode()}"))
-
-
-def start_timer(timer_time, method):
-    def wrapper():
-        method()
-
-    timer = threading.Timer(timer_time, wrapper)
-    timer.start()
+def on_message(client, userdata, msg):
+    """
+    Callback for when a message is received from the subscribed topics.
+    """
+    try:
+        message: dict = json.loads(msg.payload.decode())
+        event = message.get("event")
+        if event and event == "bid":
+            global active_auction
+            auction_id = message.get("auction_id")
+            card_uuid = message.get("card_uuid")
+            if not auction_id or not card_uuid:
+                raise ValueError("Auction ID and Card UUID are required.")
+            wallet = Wallet.objects.get(card_id=card_uuid)
+            if not wallet:
+                raise ValueError("User not found.")
+            active_auction.bid(card_uuid)
+            notify_auction_update(active_auction)
+    except json.JSONDecodeError as e:
+        print(f"Failed to decode MQTT message: {e}")
+    except ValueError as e:
+        print(f"Error processing message: {e}")
+    except Exception as e:
+        print(f"Error processing message: {e}")
 
 
 def start_mqtt():
+    """
+    Initializes and starts the MQTT client.
+    """
     global client
     try:
         client = mqtt.Client()
@@ -72,16 +154,54 @@ def start_mqtt():
         thread = threading.Thread(target=client.loop_forever, daemon=True)
         thread.start()
         print("MQTT Client started")
+        thread_client = threading.Thread(target=notify_clients, daemon=True)
+        thread_client.start()
+
     except Exception as e:
-        print("MQTT Error:", e)
+        print(f"Failed to start MQTT client: {e}")
+
+
+def notify_clients():
+    """
+    Notify clients about auctions.
+    """
+    global active_auction
+    while True:
+        try:
+            now = timezone.now()
+            if active_auction:
+                if active_auction.end_time < now:
+                    active_auction.finish_auction()
+                    notify_auction_finished(active_auction)
+                    active_auction = None
+                else:
+                    notify_auction_update(active_auction)
+            else:
+                next_auction = get_next_auction()
+                if next_auction:
+                    active_auction = next_auction
+                    active_auction.start_auction()
+                    notify_new_auction(active_auction)
+                else:
+                    notify_no_auctions()
+
+        except Exception as e:
+            print(f"Error notifying clients: {e}")
+        time.sleep(5)
 
 
 def stop_mqtt():
+    """
+    Disconnects and stops the MQTT client.
+    """
     global client
     if client:
-        client.disconnect()
-        client.loop_stop()
-        print("MQTT Client stopped")
+        try:
+            client.disconnect()
+            client.loop_stop()
+            print("MQTT Client stopped")
+        except Exception as e:
+            print(f"Error stopping MQTT client: {e}")
 
 
 # Ensure MQTT stops on Django shutdown

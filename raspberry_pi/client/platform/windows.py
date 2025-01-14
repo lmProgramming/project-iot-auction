@@ -1,27 +1,22 @@
 import json
+from client.auction.auction import Auction
 from client.clientdevice import ClientDevice
 import keyboard
 
-from connection_config import TOPIC_SUBSCRIBE  # Install with `pip install keyboard`
+from connection_config import *  # Install with `pip install keyboard`
 
 
 class Windows(ClientDevice):
-    def displayAuction(self, auction, status):
-        print(f"Windows: {auction} - {status}")
+
+    def displayAuction(self):
+        print(f"Windows: {self.current_auction}")
 
     def on_connect(self, client, userdata, flags, rc, properties=None):
         print(f"Windows: on_connect - {rc}")
         super().on_connect(client, userdata, flags, rc, properties)
 
     def on_message(self, client, userdata, message):
-        topic, payload = self.decode(message)
-        if topic == TOPIC_SUBSCRIBE:
-            auction = json.loads(payload)
-            print(
-                f"Received auction data: ID: {auction['auction_id']}, "
-                f"Article: {auction['article']}, "
-                f"Price: {auction['current_price']}"
-            )
+        super().on_message(client, userdata, message)
 
     def on_publish(self, client, userdata, mid, retain=False, properties=None):
         print(f"Windows: on_publish - {mid}")

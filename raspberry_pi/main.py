@@ -1,3 +1,4 @@
+import json
 from connection_config import BROKER, PORT, TOPIC_PUBLISH, TOPIC_SUBSCRIBE
 import paho.mqtt.client as mqtt
 import platform
@@ -29,10 +30,14 @@ client.loop_start()
 try:
     while True:
         card_uuid, num = device.read_card()
-        if card_uuid:
-            rc, mid = client.publish(TOPIC_PUBLISH, 20)
-            print(f"rc: {rc} mid: {mid}.")
-            print(f"Card {card_uuid} registered.")
+        if card_uuid and device.current_auction:
+            payload = {
+                "event": "bid",
+                "card_uuid": card_uuid,
+                "auction_id": device.current_auction.id,
+            }
+            rc, mid = client.publish(TOPIC_PUBLISH, payload=json.dumps(payload))
+
 except KeyboardInterrupt:
     print("Program terminated.")
 finally:
