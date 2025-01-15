@@ -4,45 +4,44 @@
     {% load static %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'styles/style.css' %}" />
     <title>Aplikacja aukcyjna</title>
   </head>
   <body>
-    <h1>Aplikacja aukcyjna</h1>
+    {% include 'navbar.html' %}
 
-    <section>
-      <h2>Utwórz nowego użytkownika</h2>
-      <form id="create-user-form">
-        <label for="username">Nazwa użytkownika:</label>
-        <input type="text" id="username" required />
-        <label for="pass">Hasło:</label>
-        <input type="password" id="pass" required />
-        <button type="submit">Utwórz użytkownika</button>
-      </form>
-    </section>
-
-    <section>
-      <h2>Utwórz nową aukcję</h2>
-      <form id="create-auction-form">
-        <label for="item-name">Nazwa przedmiotu:</label>
-        <input type="text" id="item-name" required />
-        <label for="starting-price">Cena początkowa:</label>
-        <input type="number" id="starting-price" min="0" required />
-        <button type="submit">Utwórz aukcję</button>
-      </form>
-    </section>
-
-    <section>
-      <h2>Dodaj pieniądze użytkownikowi</h2>
-      <form id="add-money-form">
-        <label for="username">Nazwa użytkownika:</label>
-        <input type="text" id="username" required />
-        <label for="amount">Kwota:</label>
-        <input type="number" id="amount" min="0" required />
-        <button type="submit">Dodaj pieniądze</button>
-      </form>
-    </section>
-
+    <div class="main">
+      <h1>Aplikacja aukcyjna</h1>
+      <ul>
+        <li>
+          <a class="blue-button" href="{% url 'auction_list' %}">View Auctions</a>
+        </li>
+        <li>
+          <a class="blue-button" href="{% url 'article_list' %}">View Articles</a>
+        </li>
+        <li>
+          <a class="blue-button" href="{% url 'user_list' %}">View Users</a>
+        </li>
+        <li>
+          <a class="blue-button" href="{% url 'wallet_list' %}">View Wallets</a>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a class="green-button" href="{% url 'create_auction' %}">Create Auction</a>
+        </li>
+        <li>
+          <a class="green-button" href="{% url 'create_article' %}">Create Article</a>
+        </li>
+        <li>
+          <a class="green-button" href="{% url 'create_user' %}">Create User</a>
+        </li>
+        <li>
+          <a class="green-button" href="{% url 'create_wallet' %}">Create Wallet</a>
+        </li>
+      </ul>
+    </div>
     <script src="{% static 'js/index.js' %}"></script>
   </body>
 </html>

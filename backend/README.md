@@ -54,7 +54,14 @@ update the broker IP everywhere to the one from hostname
 
 ## Admin panel
 
-http://your-server-ip:8000/admin/
+because our database is local, you need to create a superuser first
+best with the login and password provided below
+
+```sh
+py manage.py createsuperuser
+```
+
+<http://your-server-ip:8000/admin/>
 
 username: pi
 password: P@ssw0rd

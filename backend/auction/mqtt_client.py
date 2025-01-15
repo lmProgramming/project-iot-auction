@@ -12,10 +12,11 @@ TOPIC = "auction/#"
 NEW_TOPIC = "auction/news"
 
 client = None  # Global client variable
-active_auction: Auction = None  # Global variable to store the active auction
+# Global variable to store the active auction
+active_auction: Auction | None = None
 
 
-def get_next_auction() -> Auction:
+def get_next_auction() -> Auction | None:
     """
     Get the next auction to be activated.
     """
@@ -56,6 +57,7 @@ def notify_auction_update(auction: Auction):
         return
 
     payload = auction.create_payload(event="auction_update")
+
     try:
         client.publish(NEW_TOPIC, json.dumps(payload))
         print(f"Notified clients about auction update: {auction}")
@@ -113,7 +115,7 @@ def on_publish(client, userdata, mid):
     print(f"Message published with mid {mid}")
 
 
-def on_message(client, userdata, msg):
+def on_message(client, userdata, msg) -> None:
     """
     Callback for when a message is received from the subscribed topics.
     """
@@ -129,6 +131,8 @@ def on_message(client, userdata, msg):
             wallet = Wallet.objects.get(card_id=card_uuid)
             if not wallet:
                 raise ValueError("User not found.")
+            if active_auction is None:
+                raise ValueError("No active auction.")
             active_auction.bid(card_uuid)
             notify_auction_update(active_auction)
     except json.JSONDecodeError as e:

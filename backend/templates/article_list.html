@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+
+    <meta charset="UTF-8" />
+    <title>Article List</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}" />
+  </head>
+  <body>
+    {% include 'navbar.html' %}
+
+    <div class="main">
+      <h1>Article List</h1>
+      <ul>
+        {% for article in articles %}
+          <li>{{ article }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </body>
+</html>

@@ -5,6 +5,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
+from django.views.generic import ListView
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
 
 from auction.forms import ArticleForm, RegistrationForm
 from .models import Auction, Article, User, Wallet
@@ -26,21 +29,62 @@ class AuctionViewSet(viewsets.ModelViewSet):
         client.disconnect()
 
 
+class AuctionListView(ListView):
+    model = Auction
+    template_name = "auction_list.html"
+    context_object_name = "auctions"
 
-def create_article(request, card_id: int):
-    if request.method == "POST":
-        form = ArticleForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-    else:
-        form = ArticleForm()
-    return render(request, "create_article.html", {"form": form})
+
+class ArticleListView(ListView):
+    model = Article
+    template_name = "article_list.html"
+    context_object_name = "articles"
+
+
+class UserListView(ListView):
+    model = User
+    template_name = "user_list.html"
+    context_object_name = "users"
+
+
+class WalletListView(ListView):
+    model = Wallet
+    template_name = "wallet_list.html"
+    context_object_name = "wallets"
+
+
+class AuctionCreateView(CreateView):
+    model = Auction
+    fields = ['article', 'start_time', 'end_time', 'current_price']
+    template_name = "auction_form.html"
+    success_url = reverse_lazy('auction_list')
+
+
+class ArticleCreateView(CreateView):
+    model = Article
+    fields = ['name', 'owner', 'starting_price', 'description', 'image']
+    template_name = "article_form.html"
+    success_url = reverse_lazy('article_list')
+
+
+class UserCreateView(CreateView):
+    model = User
+    fields = ['name', 'surname', 'login', 'password', 'age', 'wallet']
+    template_name = "user_form.html"
+    success_url = reverse_lazy('user_list')
+
+
+class WalletCreateView(CreateView):
+    model = Wallet
+    fields = ['card_id', 'balance']
+    template_name = "wallet_form.html"
+    success_url = reverse_lazy('wallet_list')
 
 
 def register(request, card_id: int):
     try:
-        wallet = Wallet.objects.filter(card_id=card_id)
-        if wallet:
+        wallet_qs = Wallet.objects.filter(card_id=card_id)
+        if wallet_qs.exists():
             return HttpResponse("User already registered")
     except Wallet.DoesNotExist:
         wallet = Wallet.objects.create(card_id=card_id, balance=0.0)
