@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+
+    <meta charset="UTF-8" />
+    <title>Create Article</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}" />
+  </head>
+  <body>
+    {% include 'navbar.html' %}
+
+    <div class="main">
+      <h1>Create Article</h1>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Create</button>
+      </form>
+    </div>
+  </body>
+</html>

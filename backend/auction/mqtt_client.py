@@ -57,7 +57,7 @@ def notify_auction_update(auction: Auction):
         return
 
     payload = auction.create_payload(event="auction_update")
-    print(payload)
+
     try:
         client.publish(NEW_TOPIC, json.dumps(payload))
         print(f"Notified clients about auction update: {auction}")
