@@ -41,9 +41,12 @@ class Article(models.Model):
 
 
 class Auction(models.Model):
-    article: models.ForeignKey = models.ForeignKey(Article, on_delete=models.CASCADE)
-    start_time: models.DateTimeField = models.DateTimeField(default=timezone.now)
-    end_time: models.DateTimeField = models.DateTimeField(null=True, blank=True)
+    article: models.ForeignKey = models.ForeignKey(
+        Article, on_delete=models.CASCADE)
+    start_time: models.DateTimeField = models.DateTimeField(
+        default=timezone.now)
+    end_time: models.DateTimeField = models.DateTimeField(
+        null=True, blank=True)
     is_active: models.BooleanField = models.BooleanField(default=False)
     is_finished: models.BooleanField = models.BooleanField(default=False)
     current_price: models.FloatField = models.FloatField()
@@ -79,10 +82,10 @@ class Auction(models.Model):
         self.is_active = False
         print(f"Auction for {self.article.name} finished.")
         print(f"Winner: {self.last_bidder}")
-        if(self.last_bidder):
+        if (self.last_bidder):
             self.last_bidder.wallet.balance -= self.current_price
             self.last_bidder.wallet.save()
-            
+
         self.save()
 
     def bid(self, card_uuid: str, amount=20):
@@ -110,16 +113,15 @@ class Auction(models.Model):
             img_path = "/home/pi/Documents/project-iot-auction/backend/images/default.png"
         else:
             img_path = "/home/pi/Documents/project-iot-auction/backend"+article.image.url
-        with open(img_path,"rb") as img:
+        with open(img_path, "rb") as img:
             img_data = base64.b64encode(img.read()).decode('utf-8')
-
 
         last_bidder = self.last_bidder
         if last_bidder:
-            name=last_bidder.name
+            name = last_bidder.name
         else:
             name = "none"
- 
+
         return {
             "event": event,
             "auction": {
@@ -138,7 +140,8 @@ class Bid(models.Model):
     auction: models.ForeignKey = models.ForeignKey(
         Auction, on_delete=models.CASCADE, related_name="bids"
     )
-    bidder: models.ForeignKey = models.ForeignKey(User, on_delete=models.CASCADE)
+    bidder: models.ForeignKey = models.ForeignKey(
+        User, on_delete=models.CASCADE)
     amount: models.FloatField = models.FloatField()
     placed_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 
