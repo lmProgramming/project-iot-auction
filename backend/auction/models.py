@@ -24,7 +24,7 @@ class Wallet(models.Model):
     balance: models.FloatField = models.FloatField()
 
     def __str__(self):
-        return f"Wallet for {self.user.name}"
+        return f"Wallet {self.card_id}, balance {self.balance}"
 
 
 class Article(models.Model):
@@ -41,13 +41,16 @@ class Article(models.Model):
 
 
 class Auction(models.Model):
-    article: models.ForeignKey = models.ForeignKey(Article, on_delete=models.CASCADE)
-    start_time: models.DateTimeField = models.DateTimeField(default=timezone.now)
-    end_time: models.DateTimeField = models.DateTimeField(null=True, blank=True)
+    article: models.ForeignKey = models.ForeignKey(
+        Article, on_delete=models.CASCADE)
+    start_time: models.DateTimeField = models.DateTimeField(
+        default=timezone.now)
+    end_time: models.DateTimeField = models.DateTimeField(
+        null=True, blank=True)
     is_active: models.BooleanField = models.BooleanField(default=False)
     is_finished: models.BooleanField = models.BooleanField(default=False)
     current_price: models.FloatField = models.FloatField()
-    last_bidder = models.ForeignKey(
+    last_bidder: models.ForeignKey = models.ForeignKey(
         User,
         null=True,
         blank=True,
@@ -99,14 +102,14 @@ class Auction(models.Model):
         self.extend_time(seconds=10)
 
     def create_payload(self, event: str):
-
         article = self.article
+
         return {
             "event": event,
             "auction": {
-                "id": self.id,
+                "id": self.pk,
                 "name": article.name,
-                "description": article.name,
+                "description": article.description,
                 "price": self.current_price,
                 "ends_in": (self.end_time - timezone.now()).seconds,
             },
@@ -114,10 +117,12 @@ class Auction(models.Model):
 
 
 class Bid(models.Model):
-    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="bids")
-    bidder = models.ForeignKey(User, on_delete=models.CASCADE)
-    amount = models.FloatField()
-    placed_at = models.DateTimeField(auto_now_add=True)
+    auction: models.ForeignKey = models.ForeignKey(
+        Auction, on_delete=models.CASCADE, related_name="bids")
+    bidder: models.ForeignKey = models.ForeignKey(
+        User, on_delete=models.CASCADE)
+    amount: models.FloatField = models.FloatField()
+    placed_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Bid by {self.bidder.name} on {self.auction.article.name} for {self.amount}"
