@@ -37,6 +37,8 @@ python manage.py runserver
 
 #### On 2 raspberry pi's over the network
 
+on the raspberry that is the server:
+
 ```sh
 sudo nano /etc/mosquitto/mosquitto.conf
 ```
@@ -52,6 +54,10 @@ hostname -I
 
 update the broker IP everywhere to the one from hostname
 
+```sh
+python manage.py runserver
+```
+
 ## Admin panel
 
 because our database is local, you need to create a superuser first
@@ -66,7 +72,7 @@ py manage.py createsuperuser
 username: pi
 password: P@ssw0rd
 
-## Database
+## Database (easier to look at it from admin view)
 
 ```sh
 sudo apt-get install sqlite3 libsqlite3-dev
