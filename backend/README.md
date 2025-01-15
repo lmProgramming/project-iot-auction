@@ -8,6 +8,7 @@ If Mosquitto is not running, the backend will work, but no MQTT API calls will w
 
 ```sh
 sudo systemctl start mosquitto
+sudo apt-get install sqlite3 libsqlite3-dev
 ```
 
 ### On Windows (Administrator)
