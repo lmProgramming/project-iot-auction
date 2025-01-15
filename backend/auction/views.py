@@ -80,6 +80,11 @@ class WalletCreateView(CreateView):
     template_name = "wallet_form.html"
     success_url = reverse_lazy("wallet_list")
 
+def manage_account(request, card_id:int):
+    wallet_qs = Wallet.objects.filter(card_id=card_id)
+    if not wallet_qs.first(): return JsonResponse({"error":"No user with such id"})
+    user = User.objects.filter(wallet=wallet_qs.first())
+
 
 def register(request, card_id: int):
     wallet = None
