@@ -33,6 +33,10 @@ class ClientDevice(ABC):
             self.displayAuction()
 
     @abstractmethod
+    def displayNotLoggedIn(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def on_publish(self, client, userdata, mid):
         raise NotImplementedError
 

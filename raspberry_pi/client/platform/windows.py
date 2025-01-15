@@ -4,6 +4,7 @@ from client.clientdevice import ClientDevice
 import keyboard
 
 from connection_config import *  # Install with `pip install keyboard`
+from decorators import debounce
 
 
 class Windows(ClientDevice):
@@ -20,6 +21,9 @@ class Windows(ClientDevice):
 
     def on_publish(self, client, userdata, mid, retain=False, properties=None):
         print(f"Windows: on_publish - {mid}")
+
+    def displayNotLoggedIn(self):
+        print("Windows: Not logged in")
 
     def read_card(self):
         event = keyboard.read_event()

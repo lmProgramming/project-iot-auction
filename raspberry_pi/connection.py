@@ -143,7 +143,7 @@ if __name__ == "__main__":
             card_uid, num = rfid.rfid_read()
             if card_uid:
                 register_card(card_uid)
-            time.sleep(0.1)
+            time.sleep(0.5)
 
     except KeyboardInterrupt:
         print("Program terminated.")

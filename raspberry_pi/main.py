@@ -1,5 +1,12 @@
 import json
-from connection_config import BROKER, PORT, TOPIC_PUBLISH, TOPIC_SUBSCRIBE
+import time
+from connection_config import (
+    BROKER,
+    PORT,
+    TOPIC_PUBLISH,
+    TOPIC_SUBSCRIBE,
+    check_logged_card,
+)
 import paho.mqtt.client as mqtt
 import platform
 
@@ -27,10 +34,20 @@ client.on_publish = device.on_publish
 client.connect(BROKER, PORT, 60)
 client.loop_start()
 
+calls = {}
+
+
 try:
     while True:
         card_uuid, num = device.read_card()
-        if card_uuid and device.current_auction:
+
+        if card_uuid:
+            is_logged = check_logged_card(card_uuid)
+            if not is_logged:
+                device.displayNotLoggedIn()
+                continue
+            if not device.current_auction:
+                continue
             payload = {
                 "event": "bid",
                 "card_uuid": card_uuid,
@@ -44,3 +61,5 @@ finally:
     client.loop_stop()
     client.disconnect()
     device.clear()
+
+import time
