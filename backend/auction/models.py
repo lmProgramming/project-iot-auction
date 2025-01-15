@@ -41,12 +41,9 @@ class Article(models.Model):
 
 
 class Auction(models.Model):
-    article: models.ForeignKey = models.ForeignKey(
-        Article, on_delete=models.CASCADE)
-    start_time: models.DateTimeField = models.DateTimeField(
-        default=timezone.now)
-    end_time: models.DateTimeField = models.DateTimeField(
-        null=True, blank=True)
+    article: models.ForeignKey = models.ForeignKey(Article, on_delete=models.CASCADE)
+    start_time: models.DateTimeField = models.DateTimeField(default=timezone.now)
+    end_time: models.DateTimeField = models.DateTimeField(null=True, blank=True)
     is_active: models.BooleanField = models.BooleanField(default=False)
     is_finished: models.BooleanField = models.BooleanField(default=False)
     current_price: models.FloatField = models.FloatField()
@@ -59,10 +56,13 @@ class Auction(models.Model):
     )
 
     def __str__(self):
-        return f"Auction for {self.article.name}, current price: {self.current_price}, active: {self.is_active}"
+        return f"Auction for {self.article.name}, current price: {self.current_price}, active: {self.is_active}, finished: {self.is_finished}, winner: {self.last_bidder.name if (self.is_finished and self.last_bidder) else 'None'}"
 
     def start_auction(self):
         """Start the auction."""
+        for auction in Auction.objects.filter(is_active=True):
+            auction.is_active = False
+            auction.save()
         self.is_active = True
         self.end_time = timezone.now() + timedelta(minutes=1)
         self.is_finished = False
@@ -77,9 +77,8 @@ class Auction(models.Model):
         """Mark the auction as finished."""
         self.is_finished = True
         self.is_active = False
-        if self.last_bidder:
-            self.last_bidder.wallet.balance -= self.current_price
-            self.last_bidder.wallet.save()
+        print(f"Auction for {self.article.name} finished.")
+        print(f"Winner: {self.last_bidder}")
         self.save()
 
     def bid(self, card_uuid: str, amount=20):
@@ -118,9 +117,9 @@ class Auction(models.Model):
 
 class Bid(models.Model):
     auction: models.ForeignKey = models.ForeignKey(
-        Auction, on_delete=models.CASCADE, related_name="bids")
-    bidder: models.ForeignKey = models.ForeignKey(
-        User, on_delete=models.CASCADE)
+        Auction, on_delete=models.CASCADE, related_name="bids"
+    )
+    bidder: models.ForeignKey = models.ForeignKey(User, on_delete=models.CASCADE)
     amount: models.FloatField = models.FloatField()
     placed_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 

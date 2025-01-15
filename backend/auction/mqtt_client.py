@@ -88,7 +88,10 @@ def notify_auction_finished(auction: Auction):
         return
 
     payload = auction.create_payload(event="auction_finished")
-    winner = auction.last_bidder.wallet.card_id
+    if not auction.last_bidder:
+        winner = "No one"
+    else:
+        winner = auction.last_bidder.name
     payload["auction"]["winner"] = winner
     try:
         client.publish(NEW_TOPIC, json.dumps(payload))

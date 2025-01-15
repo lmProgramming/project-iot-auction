@@ -11,4 +11,4 @@ class ArticleForm(forms.ModelForm):
 class RegistrationForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["name", "surname", "age"]
+        fields = ["name", "surname", "age", "login", "password"]
