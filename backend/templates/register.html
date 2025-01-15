@@ -1,8 +1,0 @@
-<h2>Register Your Card</h2>
-<p>Card ID: {{ card_id }}</p>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Register">
-</form>

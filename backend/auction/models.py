@@ -24,7 +24,7 @@ class Wallet(models.Model):
     balance: models.FloatField = models.FloatField()
 
     def __str__(self):
-        return f"Wallet for {self.user.name}"
+        return f"Wallet {self.card_id}, balance {self.balance}"
 
 
 class Article(models.Model):
