@@ -7,7 +7,8 @@ import atexit
 import json
 
 # MQTT Settings
-BROKER_ADDRESS = "10.108.33.125"  # Replace with the actual IP address
+# "10.108.33.125"  # Replace with the actual IP address
+BROKER_ADDRESS = "locallhost"
 TOPIC = "auction/#"
 NEW_TOPIC = "auction/news"
 

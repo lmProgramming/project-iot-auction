@@ -33,7 +33,7 @@ python manage.py seed
 #### Normally
 
 ```sh
-python manage.py runserver
+python manage.py runserver X.X.X.X:8000
 ```
 
 #### On 2 raspberry pi's over the network
@@ -56,7 +56,7 @@ hostname -I
 update the broker IP everywhere to the one from hostname
 
 ```sh
-python manage.py runserver
+python manage.py runserver X.X.X.X:8000
 ```
 
 ## Admin panel
