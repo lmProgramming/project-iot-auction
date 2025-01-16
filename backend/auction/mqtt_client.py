@@ -7,17 +7,16 @@ import atexit
 import json
 
 # MQTT Settings
-# "10.108.33.125"  # Replace with the actual IP address
-BROKER_ADDRESS = "locallhost"
+BROKER_ADDRESS = "localhost"  # Replace with the actual IP address
 TOPIC = "auction/#"
 NEW_TOPIC = "auction/news"
 
 client = None  # Global client variable
 # Global variable to store the active auction
-active_auction: Auction = None
+active_auction: Auction | None = None
 
 
-def get_next_auction() -> Auction:
+def get_next_auction() -> Auction | None:
     """
     Get the next auction to be activated.
     """

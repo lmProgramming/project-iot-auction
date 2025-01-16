@@ -8,7 +8,6 @@ If Mosquitto is not running, the backend will work, but no MQTT API calls will w
 
 ```sh
 sudo systemctl start mosquitto
-sudo apt-get install sqlite3 libsqlite3-dev
 ```
 
 ### On Windows (Administrator)
@@ -33,7 +32,7 @@ python manage.py seed
 #### Normally
 
 ```sh
-python manage.py runserver X.X.X.X:8000
+python manage.py runserver
 ```
 
 #### On 2 raspberry pi's over the network
@@ -56,7 +55,7 @@ hostname -I
 update the broker IP everywhere to the one from hostname
 
 ```sh
-python manage.py runserver X.X.X.X:8000
+python manage.py runserver
 ```
 
 ## Admin panel
