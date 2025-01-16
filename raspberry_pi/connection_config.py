@@ -2,7 +2,7 @@
 import requests
 import webbrowser
 
-BROKER = "localhost"  # to be changed for ip
+BROKER = "10.108.33.125"  # to be changed for ip
 PORT = 1883
 TOPIC_SUBSCRIBE = "auction/news"
 TOPIC_PUBLISH = "auction/"
@@ -14,13 +14,13 @@ API_PORT = 8000
 
 
 def check_logged_card(card_uuid):
-    url = f"http://localhost:{API_PORT}/check_registered/{card_uuid}/"
+    url = f"http://{BROKER}:{API_PORT}/check_registered/{card_uuid}/"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
         if data["registered"] == True:
             return True
         else:
-            webbrowser.open(f"http://localhost:{API_PORT}/register/{card_uuid}/")
+            webbrowser.open(f"http://{BROKER}:{API_PORT}/register/{card_uuid}/")
             return False
     return False

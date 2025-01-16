@@ -2,8 +2,8 @@
 
 from abc import ABC, abstractmethod
 import json
-from client.auction.auction import Auction
-from connection_config import *
+from raspberry_pi.client.auction.auction import Auction
+from raspberry_pi.connection_config import *
 
 
 class ClientDevice(ABC):
@@ -11,6 +11,14 @@ class ClientDevice(ABC):
 
     @abstractmethod
     def displayAuction(self, auction, status):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def displayWinner(self, auction):
+        raise NotImplementedError
+        
+    @abstractmethod    
+    def displayNothing(self):
         raise NotImplementedError
 
     def on_connect(self, client, userdata, flags, rc, properties=None):
@@ -27,8 +35,14 @@ class ClientDevice(ABC):
             event = data["event"]
             if event == EVENT_NOAUCTION:
                 self.current_auction = None
+                self.displayNothing()
                 return print("No new autions.")
+            if event == "auction_finished":
+                self.displayWinner(self.current_auction)
+                self.current_auction = None
             auction: Auction = Auction.fromJson(data["auction"])
+            if self.current_auction and auction.id == self.current_auction and auction.price == self.current_auction.price:
+                return
             self.current_auction = auction
             self.displayAuction()
 

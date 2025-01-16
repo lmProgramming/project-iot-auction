@@ -1,6 +1,6 @@
 import json
 import time
-from connection_config import (
+from raspberry_pi.connection_config import (
     BROKER,
     PORT,
     TOPIC_PUBLISH,
@@ -17,7 +17,7 @@ if platform.system() == "Windows":
 if platform.system() == "Linux":
     with open("/proc/cpuinfo", "r") as f:
         if "Raspberry Pi" in f.read():
-            from client.platform.raspberry import Raspberry
+            from raspberry_pi.client.platform.raspberry import Raspberry
 
             device = Raspberry()
         else:
@@ -26,7 +26,7 @@ if platform.system() == "Linux":
             )
 
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+client: mqtt.Client = mqtt.Client()
 client.on_message = device.on_message
 client.on_connect = device.on_connect
 client.on_publish = device.on_publish
@@ -39,7 +39,10 @@ calls = {}
 
 try:
     while True:
-        card_uuid, num = device.read_card()
+        try:
+            card_uuid, num = device.read_card()
+        except TypeError:
+            continue
 
         if card_uuid:
             is_logged = check_logged_card(card_uuid)
@@ -54,7 +57,7 @@ try:
                 "auction_id": device.current_auction.id,
             }
             rc, mid = client.publish(TOPIC_PUBLISH, payload=json.dumps(payload))
-
+            time.sleep(1)
 except KeyboardInterrupt:
     print("Program terminated.")
 finally:
