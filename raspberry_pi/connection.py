@@ -5,11 +5,12 @@ from datetime import datetime
 
 from config.raspberry.raspberry_config import *
 import config.raspberry.rfid as rfid
+from PIL import ImageFont
 
 # It would be nice if this script could be run without raspberry pi, using dependency injection to simulate rfid on keyboard
 
 # configs
-BROKER = "localhost"  # to be changed for ip
+BROKER = "10.108.33.125"  # to be changed for ip
 PORT = 1883
 TOPIC_SUBSCRIBE = "auction/news"
 TOPIC_PUBLISH = "auction/"
@@ -42,21 +43,19 @@ def display_on_oled(auction, status):
     # draw.text((5, 5), f"ID: {auction['auction_id']}", font=font_small, fill="WHITE")
     draw.text(
         (2, 10),
-        f"Article: {
-              auction['article']}",
+        f"Article: {auction['article']}",
         font=font_small,
         fill="WHITE",
     )
     draw.text(
         (2, 30),
-        f"Price: ${
-              auction['current_price']}",
+        f"Price: ${auction['current_price']}",
         font=font_small,
         fill="WHITE",
     )
     draw.text((2, 50), f"{status}", font=font_small, fill="BLUE")
 
-    artImg = Image.open("/home/pi/project-iot-auction/raspberry_pi/lib/oled/pic.jpg")
+    artImg = Image.open("/home/pi/project-iot-auction/raspberry_pi/config/raspberry/lib/oled/pic.jpg")
     artImg = artImg.resize((30, 30))
 
     image.paste(artImg, (64, 10))
@@ -106,9 +105,7 @@ def register_card(card_uid):
         topic = f"{TOPIC_PUBLISH}{id}"
 
         client.publish(topic, json.dumps(payload))
-        print(
-            f"Card {card_uid} registered at {
-              timestamp} for auction {current_auction['auction_id']}."
+        print(f"Card {card_uid} registered at {timestamp} for auction {current_auction['auction_id']}."
         )
         display_on_oled(current_auction, f"Card {card_uid} registered!")
 
