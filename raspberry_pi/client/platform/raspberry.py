@@ -9,12 +9,28 @@ from io import BytesIO
 
 class Raspberry(ClientDevice):
     last_message_received = None
+    buzzerPin = 23
+    SOUND_ON = True
 
     def __init__(self):
         self.disp = SSD1331.SSD1331()
         self.disp.Init()
         self.disp.clear()
         self.rfid = RFID_READER()
+
+        #GPIO.setmode(GPIO.BCM) #idk if necessary should be already set
+        GPIO.setup(buzzerPin, GPIO.OUT)
+        GPIO.output(buzzerPin, 1)
+
+    def buzzer(self, state: bool) -> None:
+        if not self.SOUND_ON:
+            return
+        GPIO.output(self.buzzerPin, not state)  # pylint: disable=no-member
+
+    def signal_registration(self):
+        self.buzzer(True)
+        time.sleep(0.2)
+        self.buzzer(False)
 
     def display(self, auction, status):
         print(f"Raspberry: {auction} - {status}")
@@ -25,6 +41,7 @@ class Raspberry(ClientDevice):
 
     def on_message(self, client, userdata, message):
         super().on_message(client, userdata, message)
+        self.signal_registration()
 
     def on_publish(self, client, userdata, mid):
         print(f"Raspberry: on_publish - {mid}")
@@ -55,7 +72,7 @@ class Raspberry(ClientDevice):
         draw = ImageDraw.Draw(image)
 
         # draw.text((5, 5), f"ID: {auction['auction_id']}", font=font_small, fill="WHITE")
-        draw.text(           (2, 10),            "Waiting for auction...",            font=font_small,  fill="WHITE",        )
+        draw.text((2, 10),"Waiting for auction...",font=font_small,  fill="WHITE")
 
         self.disp.ShowImage(image, 0, 0)
 
@@ -71,7 +88,7 @@ class Raspberry(ClientDevice):
         draw = ImageDraw.Draw(image)
 
         # draw.text((5, 5), f"ID: {auction['auction_id']}", font=font_small, fill="WHITE")
-        draw.text(           (2, 10),            f"{auction.last_bidder} won article: {                self.current_auction.name}",            font=font_small,  fill="WHITE",        )
+        draw.text((2, 10),f"{auction.last_bidder} won article: {self.current_auction.name}",font=font_small,  fill="WHITE")
 
         self.disp.ShowImage(image, 0, 0)
 
