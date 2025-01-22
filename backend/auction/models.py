@@ -57,6 +57,7 @@ class Auction(models.Model):
         on_delete=models.SET_NULL,
         related_name="last_bid_auction",
     )
+    current_price: models.FloatField = models.FloatField()
 
     def __str__(self):
         return f"Auction for {self.article.name}, current price: {self.current_price}, active: {self.is_active}, finished: {self.is_finished}, winner: {self.last_bidder.name if (self.is_finished and self.last_bidder) else 'None'}"

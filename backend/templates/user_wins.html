@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet" />
+    <title>Winners</title>
+</head>
+<body>
+    <h1>List of Auction Winners</h1>
+    <ul>
+        {% for user, auctions in user_auctions.items %}
+            <li>
+                <strong>{{ user.name }} {{ user.surname }}</strong>
+                <ul>
+                    {% for auction in auctions %}
+                        <li>
+                            Article: {{ auction.article.name }} - Winning Price: ${{ auction.current_price }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

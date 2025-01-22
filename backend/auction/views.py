@@ -13,6 +13,10 @@ from auction.forms import ArticleForm, RegistrationForm
 from .models import Auction, Article, User, Wallet
 from .serializers import AuctionSerializer, ItemSerializer, UserSerializer
 
+from django.shortcuts import render
+from .models import Auction
+from django.contrib.auth.models import User
+
 
 class AuctionViewSet(viewsets.ModelViewSet):
     queryset = Auction.objects.all()
@@ -80,6 +84,11 @@ class WalletCreateView(CreateView):
     template_name = "wallet_form.html"
     success_url = reverse_lazy("wallet_list")
 
+
+class UserWinsView(ListView):
+    model = User
+    template_name = "user_wins.html"
+
 def manage_account(request, card_id:int):
     wallet_qs = Wallet.objects.filter(card_id=card_id)
     if not wallet_qs.first(): return JsonResponse({"error":"No user with such id"})
@@ -128,6 +137,10 @@ def check_registered(request, card_id: int):
     except Wallet.DoesNotExist:
         return JsonResponse({"registered": False, "url": f"/register/{card_id}/"})
 
+
+def user_wins_view(request):
+    users_with_wins = User.objects.prefetch_related('won_auctions').all()
+    return render(request, 'user_wins.html', {'users_with_wins': users_with_wins})
 
 # Create your views here.
 
