@@ -32,6 +32,6 @@ urlpatterns: list[URLPattern] = [
          views.check_registered, name="check_registered"),
     path("user_wins/", views.user_wins_view, name="user_wins"),
     path("manage_wallets/", views.manage_wallets, name="manage_wallets"),
-    path("add_money_to_wallet/<int:card_id>/",
+    path("add_money_to_wallet/",
          views.add_money_to_wallet, name="add_money_to_wallet"),
 ]

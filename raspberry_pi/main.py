@@ -57,6 +57,7 @@ try:
                 "auction_id": device.current_auction.id,
             }
             rc, mid = client.publish(TOPIC_PUBLISH, payload=json.dumps(payload))
+            device.signal_registration()
             time.sleep(1)
 except KeyboardInterrupt:
     print("Program terminated.")

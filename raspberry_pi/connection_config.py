@@ -2,7 +2,7 @@
 import requests
 import webbrowser
 
-BROKER = "10.108.33.125"  # to be changed for ip
+BROKER = "10.108.33.123"  # to be changed for ip
 PORT = 1883
 TOPIC_SUBSCRIBE = "auction/news"
 TOPIC_PUBLISH = "auction/"

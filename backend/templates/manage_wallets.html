@@ -27,10 +27,11 @@
               <td class="border border-gray-200 px-4 py-2">{{ wallet.card_id }}</td>
               <td class="border border-gray-200 px-4 py-2 text-right">{{ wallet.balance }}</td>
               <td class="border border-gray-200 px-4 py-2" colspan="2">
-                <form method="post" action="{% url 'add_money_to_wallet' wallet.card_id %}" class="flex items-center gap-2" onsubmit="handleFormSubmit(event, {{ wallet.card_id }})">
+                <form method="post" action="{% url 'add_money_to_wallet' %}" class="flex items-center gap-2" onsubmit="handleFormSubmit(event, wallet.card_id)">
                   {% csrf_token %}
                   <input type="number" step="0.01" name="amount" placeholder="Amount" required class="border border-gray-300 rounded px-2 py-1 w-24" />
                   <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Change Balance</button>
+                  <input type="hidden" name="card_id" value="{{ wallet.card_id }}">
                 </form>
               </td>
             </tr>

@@ -1,6 +1,0 @@
-login: pi
-haslo: P@ssw0rd
-
-To konto posiada uprawnienia do wydawania komendy sudo.
-
-

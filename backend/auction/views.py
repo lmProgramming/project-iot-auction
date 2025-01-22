@@ -92,7 +92,7 @@ class UserWinsView(ListView):
     template_name = "user_wins.html"
 
 
-def manage_account(request, card_id: int) -> JsonResponse | None:
+def manage_account(request, card_id: int) -> JsonResponse:
     wallet_qs = Wallet.objects.filter(card_id=card_id)
     if not wallet_qs.first():
         return JsonResponse({"error": "No user with such id"})
@@ -101,7 +101,7 @@ def manage_account(request, card_id: int) -> JsonResponse | None:
     return JsonResponse({"user": user})
 
 
-def register(request, card_id: int) -> HttpResponseRedirect | HttpResponsePermanentRedirect | HttpResponse:
+def register(request, card_id: int) :
     wallet = None
     wallet_qs = Wallet.objects.filter(card_id=card_id)
 
@@ -168,13 +168,15 @@ def manage_wallets(request) -> HttpResponse:
 
 @csrf_exempt
 @require_POST
-def add_money_to_wallet(request, card_id: int) -> JsonResponse:
+def add_money_to_wallet(request) -> JsonResponse:
     try:
-        wallet = Wallet.objects.get(card_id=card_id)
+        print(request.POST.get("amount", 0))
+        print(request.POST.get("card_id", 0))
+        wallet = Wallet.objects.get(card_id=request.POST.get("card_id", 0))
         amount = decimal.Decimal(request.POST.get("amount", 0))
         wallet.change_balance(amount)
         wallet.save()
-        return JsonResponse({"success": True, "new_balance": wallet.balance})
+        return redirect("manage_wallets")
     except Wallet.DoesNotExist:
         return JsonResponse({"error": "Wallet not found"}, status=404)
     except ValueError:

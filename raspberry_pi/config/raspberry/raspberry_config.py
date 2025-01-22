@@ -34,12 +34,8 @@ GPIO.output(buzzerPin, 1)
 
 ws2812pin = 8
 
-font_large = ImageFont.truetype(
-    "/home/pi/project-iot-auction/raspberry_pi/config/raspberry/lib/oled/Font.ttf", 18
-)
-font_small = ImageFont.truetype(
-    "/home/pi/project-iot-auction/raspberry_pi/config/raspberry/lib/oled/Font.ttf", 11
-)
+font_large = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 18, layout_engine=ImageFont.LAYOUT_BASIC)
+font_small = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 11, layout_engine=ImageFont.LAYOUT_BASIC)
 
 
 def configInfo():
