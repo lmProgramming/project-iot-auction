@@ -1,21 +1,21 @@
 from django.shortcuts import render
-from django.db.models.manager import BaseManager
 from django.http import HttpResponse, HttpResponsePermanentRedirect, HttpResponseRedirect, JsonResponse
-from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 
-from auction.forms import ArticleForm, RegistrationForm
+from auction.forms import RegistrationForm
 from .models import Auction, Article, User, Wallet
-from .serializers import AuctionSerializer, ItemSerializer, UserSerializer
+from .serializers import AuctionSerializer
 
 from django.shortcuts import render
 from .models import Auction
-from django.contrib.auth.models import UserManager
+
+import decimal
 
 
 class AuctionViewSet(viewsets.ModelViewSet):
@@ -159,6 +159,26 @@ def user_wins_view(request) -> HttpResponse:
     print(user_wins)
 
     return render(request, 'user_wins.html', {'users_with_wins': user_wins})
+
+
+def manage_wallets(request) -> HttpResponse:
+    wallets = Wallet.objects.all()
+    return render(request, 'manage_wallets.html', {'wallets': wallets})
+
+
+@csrf_exempt
+@require_POST
+def add_money_to_wallet(request, card_id: int) -> JsonResponse:
+    try:
+        wallet = Wallet.objects.get(card_id=card_id)
+        amount = decimal.Decimal(request.POST.get("amount", 0))
+        wallet.change_balance(amount)
+        wallet.save()
+        return JsonResponse({"success": True, "new_balance": wallet.balance})
+    except Wallet.DoesNotExist:
+        return JsonResponse({"error": "Wallet not found"}, status=404)
+    except ValueError:
+        return JsonResponse({"error": "Invalid amount"}, status=400)
 
 
 def index(request) -> HttpResponse:
