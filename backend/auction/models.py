@@ -2,6 +2,7 @@ from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 import base64
+import decimal
 # Create your models here.
 
 
@@ -21,7 +22,14 @@ class User(models.Model):
 
 class Wallet(models.Model):
     card_id: models.CharField = models.CharField(max_length=50)
-    balance: models.FloatField = models.FloatField()
+    balance: models.DecimalField = models.DecimalField(
+        max_digits=10, decimal_places=2)
+
+    def change_balance(self, amount) -> None:
+        if not isinstance(amount, decimal.Decimal):
+            amount = decimal.Decimal(amount)
+        self.balance += amount
+        self.save()
 
     def __str__(self):
         return f"Wallet {self.card_id}, balance {self.balance}"
@@ -32,7 +40,8 @@ class Article(models.Model):
     owner: models.ForeignKey = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL
     )
-    starting_price: models.FloatField = models.FloatField()
+    starting_price: models.DecimalField = models.DecimalField(
+        max_digits=10, decimal_places=2)
     description: models.TextField = models.TextField(default="")
     image: models.ImageField = models.ImageField(upload_to="images/")
 
@@ -49,7 +58,8 @@ class Auction(models.Model):
         null=True, blank=True)
     is_active: models.BooleanField = models.BooleanField(default=False)
     is_finished: models.BooleanField = models.BooleanField(default=False)
-    current_price: models.FloatField = models.FloatField()
+    current_price: models.DecimalField = models.DecimalField(
+        max_digits=10, decimal_places=2)
     last_bidder: models.ForeignKey = models.ForeignKey(
         User,
         null=True,
@@ -71,20 +81,24 @@ class Auction(models.Model):
         self.is_finished = False
         self.save()
 
-    def extend_time(self, seconds=15):
+    def extend_time(self, seconds=15) -> None:
         if self.is_active:
             self.end_time = timezone.now() + timedelta(seconds=seconds)
             self.save()
 
-    def finish_auction(self):
+    def finish_auction(self) -> None:
         """Mark the auction as finished."""
         self.is_finished = True
         self.is_active = False
+        assert isinstance(self.article, Article)
         print(f"Auction for {self.article.name} finished.")
         print(f"Winner: {self.last_bidder}")
-        if (self.last_bidder):
-            self.last_bidder.wallet.balance -= self.current_price
-            self.last_bidder.wallet.save()
+        last_bidder = self.last_bidder
+        if (last_bidder):
+            assert isinstance(last_bidder, User)
+            wallet: Wallet = last_bidder.wallet
+            wallet.change_balance(-self.current_price)
+            wallet.save()
 
         self.save()
 
@@ -109,6 +123,7 @@ class Auction(models.Model):
 
     def create_payload(self, event: str):
         article = self.article
+        assert isinstance(article, Article)
         if not article.image:
             img_path = "/home/pi/Documents/project-iot-auction/backend/images/default.png"
         else:
@@ -117,6 +132,7 @@ class Auction(models.Model):
             img_data = base64.b64encode(img.read()).decode('utf-8')
 
         last_bidder = self.last_bidder
+        assert isinstance(last_bidder, User)
         if last_bidder:
             name = last_bidder.name
         else:
@@ -142,20 +158,21 @@ class Bid(models.Model):
     )
     bidder: models.ForeignKey = models.ForeignKey(
         User, on_delete=models.CASCADE)
-    amount: models.FloatField = models.FloatField()
+    amount: models.DecimalField = models.DecimalField(
+        max_digits=10, decimal_places=2)
     placed_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Bid by {self.bidder.name} on {self.auction.article.name} for {self.amount}"
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
+        assert isinstance(self.auction, Auction)
         if self.amount <= self.auction.current_price:
             raise ValueError("Bid must be higher than the current price.")
 
         if not self.auction.is_active:
             raise ValueError("Cannot place a bid on an inactive auction.")
 
-        # Update auction current price and last bidder
         self.auction.current_price = self.amount
         self.auction.last_bidder = self.bidder
         self.auction.extend_time(seconds=10)  # Extend the auction

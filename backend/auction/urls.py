@@ -1,7 +1,5 @@
 from django.urls import path
 from django.urls.resolvers import URLPattern
-from django.conf.urls.static import static
-from django.conf import settings
 from auction import views
 from rest_framework.routers import DefaultRouter
 from .views import (
@@ -15,7 +13,6 @@ from .views import (
     UserCreateView,
     WalletCreateView,
 )
-from django.contrib.auth.views import LoginView
 
 router = DefaultRouter()
 router.register(r"auctions", AuctionViewSet)
@@ -31,9 +28,10 @@ urlpatterns: list[URLPattern] = [
     path("create_article/", ArticleCreateView.as_view(), name="create_article"),
     path("create_user/", UserCreateView.as_view(), name="create_user"),
     path("create_wallet/", WalletCreateView.as_view(), name="create_wallet"),
-    path(
-        "check_registered/<str:card_id>/",
-        views.check_registered,
-        name="check_registered",
-    ),
+    path("check_registered/<str:card_id>/",
+         views.check_registered, name="check_registered"),
+    path("user_wins/", views.user_wins_view, name="user_wins"),
+    path("manage_wallets/", views.manage_wallets, name="manage_wallets"),
+    path("add_money_to_wallet/<int:card_id>/",
+         views.add_money_to_wallet, name="add_money_to_wallet"),
 ]

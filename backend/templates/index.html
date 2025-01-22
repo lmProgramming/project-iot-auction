@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'styles/style.css' %}" />
-    <title>Aplikacja aukcyjna</title>
+    <title>Auction Application</title>
   </head>
   <body>
     {% include 'navbar.html' %}
 
     <div class="main">
-      <h1>Aplikacja aukcyjna</h1>
+      <h1>Auction Application</h1>
       <ul>
         <li>
           <a class="blue-button" href="{% url 'auction_list' %}">View Auctions</a>
@@ -25,6 +25,14 @@
         </li>
         <li>
           <a class="blue-button" href="{% url 'wallet_list' %}">View Wallets</a>
+        </li>
+        <li>
+          <a class="blue-button" href="{% url 'user_wins' %}">View User Wins</a>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a class="yellow-button" href="{% url 'manage_wallets' %}">Manage Wallets</a>
         </li>
       </ul>
       <ul>

@@ -1,24 +1,28 @@
 from django.shortcuts import render
-from django.db.models.manager import BaseManager
-from django.http import HttpResponse, JsonResponse
-from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponse, HttpResponsePermanentRedirect, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 
-from auction.forms import ArticleForm, RegistrationForm
+from auction.forms import RegistrationForm
 from .models import Auction, Article, User, Wallet
-from .serializers import AuctionSerializer, ItemSerializer, UserSerializer
+from .serializers import AuctionSerializer
+
+from django.shortcuts import render
+from .models import Auction
+
+import decimal
 
 
 class AuctionViewSet(viewsets.ModelViewSet):
     queryset = Auction.objects.all()
     serializer_class = AuctionSerializer
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer) -> None:
         serializer.save()
         # Notify Raspberry Pis via MQTT
         import paho.mqtt.client as mqtt
@@ -55,38 +59,49 @@ class WalletListView(ListView):
 
 class AuctionCreateView(CreateView):
     model = Auction
-    fields = ["article", "start_time", "end_time", "current_price"]
+    fields: list[str] = ["article", "start_time", "end_time", "current_price"]
     template_name = "auction_form.html"
     success_url = reverse_lazy("auction_list")
 
 
 class ArticleCreateView(CreateView):
     model = Article
-    fields = ["name", "owner", "starting_price", "description", "image"]
+    fields: list[str] = ["name", "owner",
+                         "starting_price", "description", "image"]
     template_name = "article_form.html"
     success_url = reverse_lazy("article_list")
 
 
 class UserCreateView(CreateView):
     model = User
-    fields = ["name", "surname", "login", "password", "age", "wallet"]
+    fields: list[str] = ["name", "surname",
+                         "login", "password", "age", "wallet"]
     template_name = "user_form.html"
     success_url = reverse_lazy("user_list")
 
 
 class WalletCreateView(CreateView):
     model = Wallet
-    fields = ["card_id", "balance"]
+    fields: list[str] = ["card_id", "balance"]
     template_name = "wallet_form.html"
     success_url = reverse_lazy("wallet_list")
 
-def manage_account(request, card_id:int):
+
+class UserWinsView(ListView):
+    model = User
+    template_name = "user_wins.html"
+
+
+def manage_account(request, card_id: int) -> JsonResponse | None:
     wallet_qs = Wallet.objects.filter(card_id=card_id)
-    if not wallet_qs.first(): return JsonResponse({"error":"No user with such id"})
+    if not wallet_qs.first():
+        return JsonResponse({"error": "No user with such id"})
     user = User.objects.filter(wallet=wallet_qs.first())
 
+    return JsonResponse({"user": user})
 
-def register(request, card_id: int):
+
+def register(request, card_id: int) -> HttpResponseRedirect | HttpResponsePermanentRedirect | HttpResponse:
     wallet = None
     wallet_qs = Wallet.objects.filter(card_id=card_id)
 
@@ -117,11 +132,11 @@ def register(request, card_id: int):
     return render(request, "register.html", {"form": form, "card_id": card_id})
 
 
-def check_registered(request, card_id: int):
+def check_registered(request, card_id: int) -> JsonResponse:
     try:
         wallet_qs = Wallet.objects.filter(card_id=card_id)
         if wallet_qs.exists():
-            user = User.objects.get(wallet=wallet_qs.first())
+            user: User = User.objects.get(wallet=wallet_qs.first())
             return JsonResponse({"registered": True, "user": user.name})
         return JsonResponse({"registered": False, "url": f"/register/{card_id}/"})
 
@@ -129,7 +144,41 @@ def check_registered(request, card_id: int):
         return JsonResponse({"registered": False, "url": f"/register/{card_id}/"})
 
 
-# Create your views here.
+def user_wins_view(request) -> HttpResponse:
+    user_wins: dict[User, list] = {user: [] for user in User.objects.all()}
+
+    for auction in Auction.objects.filter(is_finished=True):
+        print(auction)
+        last_bidder = auction.last_bidder
+        print(last_bidder)
+        if last_bidder is None:
+            continue
+        assert isinstance(last_bidder, User)
+        user_wins[last_bidder].append(auction)
+
+    print(user_wins)
+
+    return render(request, 'user_wins.html', {'users_with_wins': user_wins})
+
+
+def manage_wallets(request) -> HttpResponse:
+    wallets = Wallet.objects.all()
+    return render(request, 'manage_wallets.html', {'wallets': wallets})
+
+
+@csrf_exempt
+@require_POST
+def add_money_to_wallet(request, card_id: int) -> JsonResponse:
+    try:
+        wallet = Wallet.objects.get(card_id=card_id)
+        amount = decimal.Decimal(request.POST.get("amount", 0))
+        wallet.change_balance(amount)
+        wallet.save()
+        return JsonResponse({"success": True, "new_balance": wallet.balance})
+    except Wallet.DoesNotExist:
+        return JsonResponse({"error": "Wallet not found"}, status=404)
+    except ValueError:
+        return JsonResponse({"error": "Invalid amount"}, status=400)
 
 
 def index(request) -> HttpResponse:
