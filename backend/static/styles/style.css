@@ -65,3 +65,18 @@ a.green-button {
 a.green-button:hover {
   background-color: #218838;
 }
+
+a.yellow-button {
+  background-color: #ffc107;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 10px;
+  width: 200px;
+}
+
+a.yellow-button:hover {
+  background-color: #d39e00;
+}
