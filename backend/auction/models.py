@@ -57,7 +57,6 @@ class Auction(models.Model):
         on_delete=models.SET_NULL,
         related_name="last_bid_auction",
     )
-    current_price: models.FloatField = models.FloatField()
 
     def __str__(self):
         return f"Auction for {self.article.name}, current price: {self.current_price}, active: {self.is_active}, finished: {self.is_finished}, winner: {self.last_bidder.name if (self.is_finished and self.last_bidder) else 'None'}"
@@ -110,6 +109,7 @@ class Auction(models.Model):
 
     def create_payload(self, event: str):
         article = self.article
+        assert isinstance(article, Article)
         if not article.image:
             img_path = "/home/pi/Documents/project-iot-auction/backend/images/default.png"
         else:
@@ -118,6 +118,7 @@ class Auction(models.Model):
             img_data = base64.b64encode(img.read()).decode('utf-8')
 
         last_bidder = self.last_bidder
+        assert isinstance(last_bidder, User)
         if last_bidder:
             name = last_bidder.name
         else:
