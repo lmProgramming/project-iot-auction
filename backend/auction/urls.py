@@ -32,6 +32,7 @@ urlpatterns: list[URLPattern] = [
     path("create_article/", ArticleCreateView.as_view(), name="create_article"),
     path("create_user/", UserCreateView.as_view(), name="create_user"),
     path("create_wallet/", WalletCreateView.as_view(), name="create_wallet"),
-    path("check_registered/<str:card_id>/",views.check_registered,name="check_registered"),
-    path("user_wins/", UserWinsView.as_view(), name="user_wins")
+    path("check_registered/<str:card_id>/",
+         views.check_registered, name="check_registered"),
+    path("user_wins/", views.user_wins_view, name="user_wins")
 ]
