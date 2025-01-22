@@ -8,7 +8,7 @@ import json
 
 # MQTT Settings
 # "10.108.33.125"  # Replace with the actual IP address
-BROKER_ADDRESS = "locallhost"
+BROKER_ADDRESS = "10.108.33.123"
 TOPIC = "auction/#"
 NEW_TOPIC = "auction/news"
 
@@ -184,6 +184,7 @@ def notify_clients():
                     active_auction = None
                 else:
                     notify_auction_update(active_auction)
+
             else:
                 next_auction = get_next_auction()
                 if next_auction:

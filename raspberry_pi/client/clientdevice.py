@@ -40,9 +40,12 @@ class ClientDevice(ABC):
             if event == "auction_finished":
                 self.displayWinner(self.current_auction)
                 self.current_auction = None
+                self.signal_registration()
             auction: Auction = Auction.fromJson(data["auction"])
             if self.current_auction and auction.id == self.current_auction and auction.price == self.current_auction.price:
                 return
+            if event == "new_auction":
+                self.signal_registration()
             self.current_auction = auction
             self.displayAuction()
 
@@ -67,3 +70,8 @@ class ClientDevice(ABC):
 
     def __str__(self):
         return super().__str__()
+
+    @abstractmethod
+    def signal_registration(self):
+        raise NotImplementedError
+

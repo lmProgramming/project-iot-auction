@@ -90,12 +90,10 @@ class Auction(models.Model):
         """Mark the auction as finished."""
         self.is_finished = True
         self.is_active = False
-        assert isinstance(self.article, Article)
         print(f"Auction for {self.article.name} finished.")
         print(f"Winner: {self.last_bidder}")
         last_bidder = self.last_bidder
         if (last_bidder):
-            assert isinstance(last_bidder, User)
             wallet: Wallet = last_bidder.wallet
             wallet.change_balance(-self.current_price)
             wallet.save()
@@ -123,16 +121,14 @@ class Auction(models.Model):
 
     def create_payload(self, event: str):
         article = self.article
-        assert isinstance(article, Article)
         if not article.image:
-            img_path = "/home/pi/Documents/project-iot-auction/backend/images/default.png"
+            img_path = "/home/pi/tests/project-iot-auction/backend/images/default.png"
         else:
-            img_path = "/home/pi/Documents/project-iot-auction/backend"+article.image.url
+            img_path = "/home/pi/tests/project-iot-auction/backend"+article.image.url
         with open(img_path, "rb") as img:
             img_data = base64.b64encode(img.read()).decode('utf-8')
 
         last_bidder = self.last_bidder
-        assert isinstance(last_bidder, User)
         if last_bidder:
             name = last_bidder.name
         else:
@@ -144,7 +140,7 @@ class Auction(models.Model):
                 "id": self.pk,
                 "name": article.name,
                 "description": article.description,
-                "price": self.current_price,
+                "price": float(self.current_price),
                 "ends_in": (self.end_time - timezone.now()).seconds,
                 'image': img_data,
                 'last_bid': name
@@ -166,7 +162,6 @@ class Bid(models.Model):
         return f"Bid by {self.bidder.name} on {self.auction.article.name} for {self.amount}"
 
     def save(self, *args, **kwargs) -> None:
-        assert isinstance(self.auction, Auction)
         if self.amount <= self.auction.current_price:
             raise ValueError("Bid must be higher than the current price.")
 
